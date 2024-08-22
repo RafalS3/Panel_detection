@@ -12,14 +12,27 @@ class marker_broadcaster(Node):
 
     def __init__(self):
         super().__init__('marker_frame_publisher')
+
         self.tf_broadcaster = TransformBroadcaster(self)
+
         self.marker_subscription = self.create_subscription(MarkerPose, '/d435_arm/aruco_detections', self.marker_pose, )
         self.marker_subscription
 
     def marker_pose(self, msg: MarkerPose):
-        marker_data = MarkerPose()
-        marker_data = msg
-        self.tf_broadcaster.sendTransform(marker_data)
+        MarkerTransform = TransformStamped()
+        MarkerTransform.header.stamp = self.get_clock().now().to_msg()
+        MarkerTransform.header.frame_id = 'marker_frame'
+        MarkerTransform.transform.translation.x = msg.pose.position.x
+        MarkerTransform.transform.translation.y = msg.pose.position.y
+        MarkerTransform.transform.translation.z = msg.pose.position.z
+
+        MarkerTransform.transform.rotation.x = msg.pose.orientation.x
+        MarkerTransform.transform.rotation.y = msg.pose.orientation.y
+        MarkerTransform.transform.rotation.z = msg.pose.orientation.z
+        MarkerTransform.transform.rotation.w = msg.pose.orientation.w
+
+        self.tf_broadcaster(MarkerTransform)
+
 
 
 def main():
