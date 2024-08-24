@@ -5,7 +5,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 from tf2_ros import TransformBroadcaster
-from aruco_opencv_msgs.msg import MarkerPose
+from aruco_opencv_msgs.msg import ArucoDetection, MarkerPose
 
 class marker_broadcaster(Node):
 
@@ -14,24 +14,28 @@ class marker_broadcaster(Node):
 
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        self.marker_subscription = self.create_subscription(MarkerPose, '/aruco_opencv_msgs/msg/ArucoDetection', self.marker_pose, 10)
+        self.marker_subscription = self.create_subscription(ArucoDetection, '/d435_arm/aruco_detections', self.marker_pose, 10)
         self.marker_subscription
 
-    def marker_pose(self, msg: MarkerPose):
+    def marker_pose(self, msg: ArucoDetection):
         MarkerTransform = TransformStamped()
         MarkerTransform.header.stamp = self.get_clock().now().to_msg()
-        MarkerTransform.header.frame_id = 'marker_frame'
 
-        MarkerTransform.transform.translation.x = msg.pose.position.x
-        MarkerTransform.transform.translation.y = msg.pose.position.y
-        MarkerTransform.transform.translation.z = msg.pose.position.z
+        MarkerTransform.header.frame_id = 'dupa'
+        markers: list[MarkerPose] = msg.markers
 
-        MarkerTransform.transform.rotation.x = msg.pose.orientation.x
-        MarkerTransform.transform.rotation.y = msg.pose.orientation.y
-        MarkerTransform.transform.rotation.z = msg.pose.orientation.z
-        MarkerTransform.transform.rotation.w = msg.pose.orientation.w
+        for marker in markers:
+            MarkerTransform.child_frame_id = f"Marker{marker.marker_id}"
+            MarkerTransform.transform.translation.x = marker.pose.position.x
+            MarkerTransform.transform.translation.y = marker.pose.position.y
+            MarkerTransform.transform.translation.z = marker.pose.position.z
 
-        self.tf_broadcaster(MarkerTransform)
+            MarkerTransform.transform.rotation.x = marker.pose.orientation.x
+            MarkerTransform.transform.rotation.y = marker.pose.orientation.y
+            MarkerTransform.transform.rotation.z = marker.pose.orientation.z
+            MarkerTransform.transform.rotation.w = marker.pose.orientation.w
+
+            self.tf_broadcaster.sendTransform(MarkerTransform)
 
 
 

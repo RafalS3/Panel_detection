@@ -21,7 +21,7 @@ REALSENSE_SERIAL_NUMBERS = {
 def launch_setup(context):
     component_container = LaunchConfiguration("component_container").perform(context)
 
-    urdf_panel = xacro.process_file(str(get_package_share_path("arm_aruco_detection") / "urdf" / "panel.urdf.xacro")).toxml()
+    urdf_panel = xacro.process_file(str(get_package_share_path("kalman_arm_moveit_config") / "urdf" / "arm.urdf.xacro")).toxml()
 
     description = []
 
@@ -122,6 +122,7 @@ def launch_setup(context):
     #     Node(
     #         package='arm_aruco_detection',
     #         executable='marker_broadcaster',
+    #         name='marker_broadcaster1'
             
     #     ),
     # ]
