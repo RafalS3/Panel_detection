@@ -118,14 +118,22 @@ def launch_setup(context):
             parameters=[{"rate": 30}],
         ),
     ]
-    # description += [
-    #     Node(
-    #         package='arm_aruco_detection',
-    #         executable='marker_broadcaster',
-    #         name='marker_broadcaster1'
+    description += [
+        Node(
+            package='arm_aruco_detection',
+            executable='marker_publisher',
+            name='marker_publisher'
             
-    #     ),
-    # ]
+        ),
+    ]
+    description += [
+        Node(
+            package='arm_aruco_detection',
+            executable='marker_broadcaster',
+            name='marker_broadcaster'
+            
+        ),
+    ]
     return description
 
 def generate_launch_description(): 
